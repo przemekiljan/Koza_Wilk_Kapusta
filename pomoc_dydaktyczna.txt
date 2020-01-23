@@ -1,0 +1,40 @@
+import copy
+import re
+
+
+def powerset(s):
+    x = len(s)
+    masks = [1 << i for i in range(x)]
+    for i in range(1 << x):
+        yield [ss for mask, ss in zip(masks, s) if i & mask]
+
+fn = 'koza.txt'
+pre = open(fn, 'r').readlines()
+sep = [i.strip('\n').split(" ") for i in pre]
+w_shore = {}
+menagerie = {}
+for i in sep:
+    if len(i) > 1:
+        if not i[0].isdigit():
+            k = i[0]
+            v = i[1:]
+            menagerie[k] = v
+    if len(i) == 2:
+        if i[0].isdigit():
+            k = i[1]
+            v = int(i[0])
+            w_shore[k] = v
+    elif len(i) == 1:
+        k = i[0]
+        w_shore[k] = 1
+e_shore = {k:0 for k in w_shore}
+goal = copy.deepcopy(w_shore)
+
+current_w_shore = []
+for i in w_shore:
+    for j in range(w_shore[i]):
+        current_w_shore.append(i)
+print (current_w_shore)
+a = powerset(current_w_shore)
+unique_data = [list(x) for x in set(tuple(x) for x in a)]
+comb =  sorted(unique_data)[1:]
