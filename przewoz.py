@@ -92,4 +92,4 @@ a = powerset(current_w_shore)
 unique_data = [list(x) for x in set(tuple(x) for x in a)]
 comb = [i for i in sorted(unique_data) if len(i) < cap]
 print (comb)
-#Tworzymy skrypt o kozach i innych zwierzętach
+#Sprawdzam czy potrafię aktualizować ten skrypt
