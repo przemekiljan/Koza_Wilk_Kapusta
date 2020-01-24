@@ -53,7 +53,12 @@
 # Funkcji, która zaktualizuje stan brzegu po zabraniu odpowiednich pasażerów
 # Zaczynamy kilka różnych grafów, ze względu na wszystkie możliwe kombinacje pierwszego kursu, z tych początków rozwidlają się pozostałe kombinacje
 # Wszystko musi być zapisywane w postaci zbioru relacji węzłów:
-# [KOZA, WILK] ->
+# [KOZA, WILK] -- [WILK]
+# [WILK] -- [KOZA]
+# [KOZA] -- [KAPUSTA]
+# [KAPUSTA] -- [KOZA, KOZA]
+# Które będzie się konwertowało na:
+# graph = {'[KOZA, WILK]': '[WILK]', '[WILK]': '[KOZA]', '[KOZA]': '[KAPUSTA]', '[KAPUSTA]': '[KOZA, KOZA]'}
 # Żeby na koniec za pomocą fucnkji opisanych na https://www.python.org/doc/essays/graphs/ sprawdzić najszybszą drogę do końca grafu
 #
 
@@ -72,33 +77,74 @@ def powerset(s):
     for i in range(1 << x):
         yield [ss for mask, ss in zip(masks, s) if i & mask]
 
-fn = sys.argv[1]
-pre = open(fn, 'r').readlines()
-sep = [i.strip('\n').split(" ") for i in pre]
-w_shore = {}
-menagerie = {}
-for i in sep:
-    if len(i) > 1:
-        if not i[0].isdigit():
-            k = i[0]
-            v = i[1:]
-            menagerie[k] = v
-    if len(i) == 2:
-        if i[0].isdigit():
-            k = i[1]
-            v = int(i[0])
-            w_shore[k] = v
-    elif len(i) == 1:
-        k = i[0]
-        w_shore[k] = 1
-e_shore = {k:0 for k in w_shore}
-goal = copy.deepcopy(w_shore)
+def load_file(a = sys.argv[1]):
+    pre = open(a, 'r').readlines()
+    sep = [i.strip('\n').split(" ") for i in pre]
+    return sep
+a = load_file()
 
-current_w_shore = []
-for i in w_shore:
-    for j in range(w_shore[i]):
-        current_w_shore.append(i)
-a = powerset(current_w_shore)
-unique_data = [list(x) for x in set(tuple(x) for x in a)]
-comb = [i for i in sorted(unique_data) if len(i) < cap]
-print (comb)
+def load_dicts(input):
+    w_shore = {}
+    menagerie = {}
+    for i in input:
+        if len(i) > 1:
+            if not i[0].isdigit():
+                k = i[0]
+                v = i[1:]
+                menagerie[k] = v
+        if len(i) == 2:
+            if i[0].isdigit():
+                k = i[1]
+                v = int(i[0])
+                w_shore[k] = v
+        elif len(i) == 1:
+            k = i[0]
+            w_shore[k] = 1
+    return menagerie, w_shore
+
+menagerie, w_shore = load_dicts(a)
+
+def create_empty_shore(start):
+    e_shore = {k:0 for k in start}
+    return e_shore
+
+e_shore = create_empty_shore(w_shore)
+
+def create_goal(start):
+    goal = copy.deepcopy(start)
+    return goal
+
+goal = create_goal(w_shore)
+
+def create_shore_list(dict):
+    current_w_shore = []
+    for i in dict:
+        for j in range(dict[i]):
+            current_w_shore.append(i)
+    return current_w_shore
+
+current_w_shore = create_shore_list(w_shore)
+
+def possible_passengers(shore_list):
+    all = powerset(shore_list)
+    unique = [list(x) for x in set(tuple(x) for x in all)]
+    passenger_combinations = [i for i in sorted(unique) if len(i) < cap]
+    return passenger_combinations
+
+comb = possible_passengers(current_w_shore)
+
+def frenzy_check(dict_shore, relations):
+    # state = create_shore_list(to_co_robi_iwona)
+    list_of_keys = list(relations.keys())
+    list_of_values = copy.deepcopy(list(relations.values()))
+    for i in list_of_values:
+        i.append(list_of_keys[list_of_values.index(i)])
+    all = powerset(dict_shore)
+    unique = [list(x) for x in set(tuple(x) for x in all)]
+    passenger_combinations = [sorted(i) for i in sorted(unique) if len(i) == 2]
+    for i in (list_of_values):
+        if sorted(i) in (passenger_combinations):
+            return False
+        else:
+            pass
+    return True
