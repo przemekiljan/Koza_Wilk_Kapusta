@@ -38,3 +38,5 @@ print (current_w_shore)
 a = powerset(current_w_shore)
 unique_data = [list(x) for x in set(tuple(x) for x in a)]
 comb =  sorted(unique_data)[1:]
+
+# hello world
