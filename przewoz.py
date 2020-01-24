@@ -47,6 +47,16 @@
 # Każdy węzeł nazywa się #poziomu.#kombinacji
 # Nazwa ta koresponduje ze słownikiem w którym kluczem jest nazwa a wartością przewóz
 #
+# Potrzebujemy zmiennych: jeden brzeg, drugi brzeg, możliwe kombinacje pasażerów
+# Do tego funkcji, która będzie sprawdzać po zabraniu którego zestawu pasażerów brzeg może być nebezpieczny
+# Funkcji która wygenereuje wszystkie możliwe kombinacje pasażerów
+# Funkcji, która zaktualizuje stan brzegu po zabraniu odpowiednich pasażerów
+# Zaczynamy kilka różnych grafów, ze względu na wszystkie możliwe kombinacje pierwszego kursu, z tych początków rozwidlają się pozostałe kombinacje
+# Wszystko musi być zapisywane w postaci zbioru relacji węzłów:
+# [KOZA, WILK] ->
+# Żeby na koniec za pomocą fucnkji opisanych na https://www.python.org/doc/essays/graphs/ sprawdzić najszybszą drogę do końca grafu
+#
+
 
 import copy
 import sys
@@ -92,4 +102,3 @@ a = powerset(current_w_shore)
 unique_data = [list(x) for x in set(tuple(x) for x in a)]
 comb = [i for i in sorted(unique_data) if len(i) < cap]
 print (comb)
-#Sprawdzam czy potrafię aktualizować ten skrypt
