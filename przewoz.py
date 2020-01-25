@@ -19,20 +19,19 @@
 #
 # Każdy węzeł cechuje się id któremu odpowiada odpowiedni załadunek na łódce
 #
-# Potrzeba jeszcze funkcji, która zaktualizuje stan brzegu po zabraniu odpowiednich pasażerów
+# Dzięki pakietowi Networkx można generować wierzchołki grafu, tzw. liście
+# Trzeba napisać funkcję która skacze po liściach i dodaje kolejne kroki tylko do tych, które nie są błędami
 #
-# Zaczynamy kilka różnych grafów, ze względu na wszystkie możliwe kombinacje pierwszego kursu,
-# z tych początków rozwidlają się pozostałe kombinacje
-
+#
 
 import copy
 import sys
 import itertools
 
+
 # Creating class for each course, with unique id and direction
 # Direction: - True = transfer to east shore
 #           - False = transfer to west shore
-
 # Creating a powerset from given set of objects
 def powerset(s):
     x = len(s)
@@ -40,11 +39,13 @@ def powerset(s):
     for i in range(1 << x):
         yield [ss for mask, ss in zip(masks, s) if i & mask]
 
+
 class Transfer():
-    newid = itertools.count()
-    def __init__(self,name = str, direction = bool):
+    new_id = itertools.count()
+
+    def __init__(self, name: str, direction: bool):
         self.name = name
-        self.id = next(self.newid)
+        self.id = next(self.new_id)
         self.direction = direction
 
     def change_direction(self):
@@ -53,11 +54,76 @@ class Transfer():
         else:
             self.direction = True
 
+
+class Shore():
+
+    def __init__(self, inv: dict):
+        self.inv = inv
+
+    # Subtracting number of animals on given shore
+    def minus(self, passengers):
+        list_of_passengers = [i for i in passengers]
+        for i in list_of_passengers:
+            self.inv[i] = self.inv[i] - 1
+            if self.inv[i] < 0:
+                raise Exception('Number of animals became less than 0')
+
+    # Adding number of animals to given shore
+    def plus(self, passengers):
+        list_of_passengers = [i for i in passengers]
+        for i in list_of_passengers:
+            self.inv[i] = self.inv[i] + 1
+
+    # Function returning boolean value depending on eating habits and current state of given shore.
+    # If farmer is not paying attention to the given shore, some animals might get hungry.
+    # Should there be a health hazard for any animal, function will return adequate result
+    def frenzy_check(self):
+        list_of_keys = list(habits.keys())
+        list_of_values = copy.deepcopy(list(habits.values()))
+        vore = []
+        for i in list_of_values:
+            for j in i:
+                element = [j, list_of_keys[list_of_values.index(i)]]
+                vore.append(element)
+        all = powerset(self.create_shore_list())
+        unique = [list(x) for x in set(tuple(x) for x in all)]
+        animal_pairs = [sorted(i) for i in sorted(unique) if len(i) == 2]
+        for i in vore:
+            if sorted(i) in animal_pairs:
+                return False
+            else:
+                pass
+            return True
+
+    # Creating full list of animals on shore from shore dictionary for further combination
+    def create_shore_list(self):
+        current_shore = []
+        for i in self.inv:
+            for j in range(self.inv[i]):
+                current_shore.append(i)
+        return current_shore
+
+    # Combinating all possible configurations of passangers that might leave given shore.
+    # Empty boat is taken into account. Any combinations that exceed boat capacity are discarded
+    def possible_passengers(self):
+        all = powerset(self.create_shore_list())
+        unique = [list(x) for x in set(tuple(x) for x in all)]
+        passenger_combinations = [i for i in sorted(unique) if len(i) < cap]
+        return passenger_combinations
+
+    # Creating empty, east shore
+    def create_empty_shore(self):
+        blank = {k: 0 for k in self.inv}
+        return Shore(blank)
+
+
 # Loading a file and preparing for further use
-def load_file(a = sys.argv[1]):
+def load_file(a=sys.argv[1]):
     pre = open(a, 'r').readlines()
     sep = [i.strip('\n').split(" ") for i in pre]
     return sep
+
+
 f = load_file()
 
 # Defining capacity of a boat, default capacity is set at 2
@@ -66,11 +132,14 @@ if sys.argv[2]:
 else:
     cap = 2
 
-# Loading info about number of animals on starting, west shore and their eating habits from file
-def load_dicts(input):
-    w_shore = {}
-    habits = {}
-    for i in input:
+global habits
+habits = {}
+
+
+# Loading info about number of animals on starting shore and their eating habits from file
+def load_dicts(fn):
+    start = {}
+    for i in fn:
         if len(i) > 1:
             if not i[0].isdigit():
                 k = i[0]
@@ -80,64 +149,15 @@ def load_dicts(input):
             if i[0].isdigit():
                 k = i[1]
                 v = int(i[0])
-                w_shore[k] = v
+                start[k] = v
         elif len(i) == 1:
             k = i[0]
-            w_shore[k] = 1
-    return habits, w_shore
+            start[k] = 1
+    return start
 
-menagerie, w_shore = load_dicts(f)
 
-# Creating empty, east shore
-def create_empty_shore(start):
-    e_shore = {k:0 for k in start}
-    return e_shore
-
-e_shore = create_empty_shore(w_shore)
+w_shore = Shore(load_dicts(f))
+e_shore = w_shore.create_empty_shore()
 
 # Stating our goal for number of animals on east shore
-def create_goal(start):
-    goal = copy.deepcopy(start)
-    return goal
-
-goal = create_goal(w_shore)
-
-# Creating full list of animals on shore from shore dictionary for further combination
-def create_shore_list(dict):
-    current_shore = []
-    for i in dict:
-        for j in range(dict[i]):
-            current_shore.append(i)
-    return current_shore
-
-current_w_shore = create_shore_list(w_shore)
-
-# Combinating all possible configurations of passangers that might leave given shore. Empty boat is taken into account.
-# Any combinations that exceed boat capacity are discarded
-def possible_passengers(shore_list):
-    all = powerset(shore_list)
-    unique = [list(x) for x in set(tuple(x) for x in all)]
-    passenger_combinations = [i for i in sorted(unique) if len(i) < cap]
-    return passenger_combinations
-
-comb = possible_passengers(current_w_shore)
-
-# Function returning boolean value depending on eating habits and current state of given shore. If farmer is not paying
-# attention to the given shore, some animals might get hungry. Should there be a health hazard for any animal, function
-# will return adequate result
-def frenzy_check(dict_shore, relations):
-    # state = create_shore_list(to_co_robi_iwona)
-    list_of_keys = list(relations.keys())
-    list_of_values = copy.deepcopy(list(relations.values()))
-    for i in list_of_values:
-        i.append(list_of_keys[list_of_values.index(i)])
-    all = powerset(dict_shore)
-    unique = [list(x) for x in set(tuple(x) for x in all)]
-    passenger_combinations = [sorted(i) for i in sorted(unique) if len(i) == 2]
-    for i in (list_of_values):
-        if sorted(i) in (passenger_combinations):
-            return False
-        else:
-            pass
-    return True
-
+goal = copy.deepcopy(w_shore)
