@@ -5,6 +5,8 @@
 # Z każdym kursem musi być wygenerowany set możliwych kombinacji pasażerów który nie zagraża życiu zwierzaków
 # Jeżeli dwa kursy pod rząd zaproponują żeby nie zabierać niczego to skrypt jest przerywany błędem - "pat"
 # Jeżeli skrypt zaczyna się zapętlać i cyklicznie powatarzać kursy to również zakończy się błędem
+# Skrypt nie może doprowadzić do sytuacji w której zawożąc zwierzę na jeden brzeg, zabierze to samo zwierze z powrotem
+# Unikalne id pozwalają na odróżnienie zwierząt tego samego rodzaju
 # Jeżeli więcej niż jedna z kombinacji pozwala na przewóz zwierzątka to skrypt przetestuje wszystkie możliwe sytuacje
 # aż nie dojdzie to sytuacji w której na prawym brzegu znajdzie się cały inwentarz
 #
