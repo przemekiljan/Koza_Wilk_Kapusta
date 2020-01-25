@@ -17,7 +17,7 @@
 #
 # Każdy węzeł cechuje się id któremu odpowiada odpowiedni załadunek na łódce
 #
-# Funkcji, która zaktualizuje stan brzegu po zabraniu odpowiednich pasażerów
+# Potrzeba jeszcze funkcji, która zaktualizuje stan brzegu po zabraniu odpowiednich pasażerów
 #
 # Zaczynamy kilka różnych grafów, ze względu na wszystkie możliwe kombinacje pierwszego kursu,
 # z tych początków rozwidlają się pozostałe kombinacje
