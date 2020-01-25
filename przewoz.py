@@ -1,97 +1,79 @@
-# Jesteśmy obserwatorem na lewym brzegu. Lewy brzeg - tu, prawy brzeg - tam
-# Początkowy stan występuje na lewym brzegu.
-# Chcemy doporowadzić do sytuacji w której wszystko znajduje się na prawym brzegu
+# Chcemy doporowadzić do sytuacji w której wszystko znajduje się na wschodnim brzegu
 #
-# Obecność Charona na którymś z brzegów chroni zwierzęta
-#
-# Charon występuje tylko w dwóch stanach 1/0, 1 oznacza, że jest tu a 0 że jest tam
-# 1 będzie oznaczać transport z tu do tam
-# 0 będzie oznaczać transport z tam do tu
-#
-# Podróż może doprowadzać do zmainy stanu lub nie
-# Podróż 1 (do tam) pozwala na zjadanie na tamtym brzegu
-# Podróż 0 (do tu) pozwala na zjadanie na tym brzegu
-#
-# Zmiana stanu jednego brzegu powoduję zmianę na drugim
-#
-# 2 funkcje wysiadanie i wsiadanie, przy wysiadaniu zwierzęta mogą się zjadać, przy wsiadaniu już nie
-# Stan Charona świadczy o tym na którym brzegu zachodzą funckje wysiadanie i wsiadanie
-# Może dojść do sytuacji w której zwierze wysiadło ale żadne nie wsiadło, wtedy stan się nie zmienia, ale nadal musi się zgadzać
-# Funckje wsiadanie i wysiadanie jako jeden z argumentów przyjmują ilość miejsc na łódce, jedno z nich zawsze zajmuje Charon
+# Klasa transfer określa dwie rzeczy - załadunek łódki oraz jej kierunek
 #
 # Z każdym kursem musi być wygenerowany set możliwych kombinacji pasażerów który nie zagraża życiu zwierzaków
 # Jeżeli dwa kursy pod rząd zaproponują żeby nie zabierać niczego to skrypt jest przerywany błędem - "pat"
-#
+# Jeżeli skrypt zaczyna się zapętlać i cyklicznie powatarzać kursy to również zakończy się błędem
 # Jeżeli więcej niż jedna z kombinacji pozwala na przewóz zwierzątka to skrypt przetestuje wszystkie możliwe sytuacje
-# aż nie dojdzie to sytuacji w której na prawym brzegu znajduje się cały inwentarz
+# aż nie dojdzie to sytuacji w której na prawym brzegu znajdzie się cały inwentarz
 #
 # Model z kombinacjami i "drzewkiem decyzyjnym" sugeruje użycie grafów
-#
-# Czytanie z pliku zwraca listę zwierzaków oraz zależności między nimi
-# Wilk
-# Koza
-# Surykatka
-# Bas
-# Brus
-# Dzik
-# .
-# .
-# .
-#
+
 # Węzłami w grafie są kolejne kombinacje pasażerów, postępują tylko te ścieżki które nie kolidują z zależnościami
 # kto zjada kogo
 #
-# Tworzymy słownik z zależnościami gdzie kluczami są zwierzęta a wartościami zwierzęta, które mogą być przez nie zjedzone
-# Recykling skryptu z wykładu który znajduje najkrótszą drogę od startu do ostatniego węzła
+# Grafy tworzone z pomocą pakietu Networkx, który pozwala na łatwą integrację kolejnych węzłów
 #
-# Każdy węzeł nazywa się #poziomu.#kombinacji
-# Nazwa ta koresponduje ze słownikiem w którym kluczem jest nazwa a wartością przewóz
+# Każdy węzeł cechuje się id któremu odpowiada odpowiedni załadunek na łódce
 #
-# Potrzebujemy zmiennych: jeden brzeg, drugi brzeg, możliwe kombinacje pasażerów
-# Do tego funkcji, która będzie sprawdzać po zabraniu którego zestawu pasażerów brzeg może być nebezpieczny
-# Funkcji która wygenereuje wszystkie możliwe kombinacje pasażerów
 # Funkcji, która zaktualizuje stan brzegu po zabraniu odpowiednich pasażerów
-# Zaczynamy kilka różnych grafów, ze względu na wszystkie możliwe kombinacje pierwszego kursu, z tych początków rozwidlają się pozostałe kombinacje
-# Wszystko musi być zapisywane w postaci zbioru relacji węzłów:
-# [KOZA, WILK] -- [WILK]
-# [WILK] -- [KOZA]
-# [KOZA] -- [KAPUSTA]
-# [KAPUSTA] -- [KOZA, KOZA]
-# Które będzie się konwertowało na:
-# graph = {'[KOZA, WILK]': '[WILK]', '[WILK]': '[KOZA]', '[KOZA]': '[KAPUSTA]', '[KAPUSTA]': '[KOZA, KOZA]'}
-# Żeby na koniec za pomocą fucnkji opisanych na https://www.python.org/doc/essays/graphs/ sprawdzić najszybszą drogę do końca grafu
 #
+# Zaczynamy kilka różnych grafów, ze względu na wszystkie możliwe kombinacje pierwszego kursu,
+# z tych początków rozwidlają się pozostałe kombinacje
 
 
 import copy
 import sys
+import itertools
 
-if sys.argv[2]:
-    cap = int(sys.argv[2])
-else:
-    cap = 2
+# Creating class for each course, with unique id and direction
+# Direction: - True = transfer to east shore
+#           - False = transfer to west shore
 
+# Creating a powerset from given set of objects
 def powerset(s):
     x = len(s)
     masks = [1 << i for i in range(x)]
     for i in range(1 << x):
         yield [ss for mask, ss in zip(masks, s) if i & mask]
 
+class Transfer():
+    newid = itertools.count()
+    def __init__(self,name = str, direction = bool):
+        self.name = name
+        self.id = next(self.newid)
+        self.direction = direction
+
+    def change_direction(self):
+        if self.direction:
+            self.direction = False
+        else:
+            self.direction = True
+
+# Loading a file and preparing for further use
 def load_file(a = sys.argv[1]):
     pre = open(a, 'r').readlines()
     sep = [i.strip('\n').split(" ") for i in pre]
     return sep
-a = load_file()
+f = load_file()
 
+# Defining capacity of a boat, default capacity is set at 2
+if sys.argv[2]:
+    cap = int(sys.argv[2])
+else:
+    cap = 2
+
+# Loading info about number of animals on starting, west shore and their eating habits from file
 def load_dicts(input):
     w_shore = {}
-    menagerie = {}
+    habits = {}
     for i in input:
         if len(i) > 1:
             if not i[0].isdigit():
                 k = i[0]
                 v = i[1:]
-                menagerie[k] = v
+                habits[k] = v
         if len(i) == 2:
             if i[0].isdigit():
                 k = i[1]
@@ -100,31 +82,36 @@ def load_dicts(input):
         elif len(i) == 1:
             k = i[0]
             w_shore[k] = 1
-    return menagerie, w_shore
+    return habits, w_shore
 
-menagerie, w_shore = load_dicts(a)
+menagerie, w_shore = load_dicts(f)
 
+# Creating empty, east shore
 def create_empty_shore(start):
     e_shore = {k:0 for k in start}
     return e_shore
 
 e_shore = create_empty_shore(w_shore)
 
+# Stating our goal for number of animals on east shore
 def create_goal(start):
     goal = copy.deepcopy(start)
     return goal
 
 goal = create_goal(w_shore)
 
+# Creating full list of animals on shore from shore dictionary for further combination
 def create_shore_list(dict):
-    current_w_shore = []
+    current_shore = []
     for i in dict:
         for j in range(dict[i]):
-            current_w_shore.append(i)
-    return current_w_shore
+            current_shore.append(i)
+    return current_shore
 
 current_w_shore = create_shore_list(w_shore)
 
+# Combinating all possible configurations of passangers that might leave given shore. Empty boat is taken into account.
+# Any combinations that exceed boat capacity are discarded
 def possible_passengers(shore_list):
     all = powerset(shore_list)
     unique = [list(x) for x in set(tuple(x) for x in all)]
@@ -133,6 +120,9 @@ def possible_passengers(shore_list):
 
 comb = possible_passengers(current_w_shore)
 
+# Function returning boolean value depending on eating habits and current state of given shore. If farmer is not paying
+# attention to the given shore, some animals might get hungry. Should there be a health hazard for any animal, function
+# will return adequate result
 def frenzy_check(dict_shore, relations):
     # state = create_shore_list(to_co_robi_iwona)
     list_of_keys = list(relations.keys())
@@ -148,3 +138,4 @@ def frenzy_check(dict_shore, relations):
         else:
             pass
     return True
+
