@@ -79,8 +79,8 @@ time.sleep(5)
 for course_number in range(len(sequence)):
     transfer = sequence[course_number]
     if not transfer:  # Stating what will happen if the boat doesn't take any passengers on board
-        print(15 * '🚢'+'\n')
-        print('🚢 ' + "Łódka przepłynęła bez załadunku " +   '🚢\n')
+        print(15 * '🚢 '+'\n')
+        print(2*'🚢 ' + "Łódka przepłynęła bez załadunku  " + 2*'🚢 '+'\n')
         time.sleep(5)
     else:
         if (course_number % 2) == 0:  # Index numbers in list containing sequence ensure that boat goes back and forth
