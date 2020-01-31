@@ -16,6 +16,7 @@
 import copy
 import sys
 import cabbage as cbg
+import time
 
 f = cbg.load_file()
 
@@ -25,7 +26,8 @@ if sys.argv[2]:
 else:
     cap = 2
 
-order = sys.stdin.split(' ')
+pre_order = sys.stdin.read().strip('\n')
+order = eval(pre_order)
 
 # Constructing sequence from input
 if order == 'NIEMOŻLIWE':
@@ -54,13 +56,13 @@ goal = copy.deepcopy(w_shore)
 max_char = max([len(k) for k in w_shore.inv])
 number_of_lines = len(w_shore.create_shore_list())
 
-
+del pre_order
 # Defining function that prints message containing shore states in each step
 def statement(transfer):
     w_list = w_shore.create_shore_list()
     e_list = e_shore.create_shore_list()
     print(15 * '🚢 ')
-    print('Zachód ↤ ' + '🧭' + ' ↦ Wschód\n')
+    print((max_char-2)*' '+'Zachód ↤ ' + '✵' + ' ↦ Wschód\n')
     for line in range(number_of_lines):
         w_item = cbg.safe_list_get(w_list, line, max_char * " ")
         e_item = cbg.safe_list_get(e_list, line, max_char * " ")
@@ -70,38 +72,37 @@ def statement(transfer):
 
 
 # Printing out starting inventory on both shores
+print((max_char)*' '+'Stan początkowy')
 statement(None)
-input("Naciśnij Enter aby rozpocząć sekwencję")
-
+time.sleep(5)
 # Creating a loop that'll iterate over next steps in given sequence
 for course_number in range(len(sequence)):
     transfer = sequence[course_number]
     if not transfer:  # Stating what will happen if the boat doesn't take any passengers on board
-        print(6 * '🚢 ' + "Łódka przepłynęła bez załadunku " + 6 * '🚢 ')
-        input("Naciśnij Enter aby przejść do kolejnego kursu")
+        print(15 * '🚢'+'\n')
+        print('🚢 ' + "Łódka przepłynęła bez załadunku " +   '🚢\n')
+        time.sleep(5)
     else:
         if (course_number % 2) == 0:  # Index numbers in list containing sequence ensure that boat goes back and forth
             w_shore.minus(transfer)
             e_shore.plus(transfer)
-            direction = 'Łódka przepływając z zachodniego brzegu do wschodniego przewiozła następujący ładunek: '
+            direction = 'Łódka przepływając z zachodniego brzegu na wschodni przewiozła następujący ładunek: '
             statement(transfer)
+            time.sleep(5)
             if course_number > 1:
                 if not w_shore.frenzy_check():  # After each step shore that the boat is leaving will be checked for
                     print(max_char * ' ' + 'Niestety doszło do konfliktu żywieniowego na wschodnim brzegu')
-                    input("Naciśnij Enter aby zakończyć działanie skryptu")  # health hazards.
                     sys.exit()
-            input("Naciśnij Enter aby przejść do kolejnego kursu")
         elif (course_number % 2) != 0:
             w_shore.plus(transfer)
             e_shore.minus(transfer)
-            direction = 'Łódka przepływając z wschodniego brzegu do zachodniego przewiozła następujący ładunek: '
+            direction = 'Łódka przepływając z wschodniego brzegu na zachodni przewiozła następujący ładunek: '
             statement(transfer)
+            time.sleep(5)
             if course_number > 1:
                 if not e_shore.frenzy_check():
                     print(max_char * ' ' + 'Niestety doszło do konfliktu żywieniowego na zachodnim brzegu')
-                    input("Naciśnij Enter aby zakończyć działanie skryptu")
                     sys.exit()
-            input("Naciśnij Enter aby przejść do kolejnego kursu")
         if e_shore.inv == goal.inv:  # Stating where to go to summary
             break
 
@@ -111,4 +112,3 @@ print('Udało się przewieźć wszystkie zwierzęta na drugą stronę!\n')
 if 'WILK' in e_shore.create_shore_list():
     print('Tylko po co rolnikowi wilk...\n')
 
-input("Naciśnij Enter aby zakończyć działanie skryptu")

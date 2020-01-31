@@ -160,8 +160,11 @@ if ['KONIEC'] in list_of_labels:
             node_sizes[node] = 1000
         else:
             color_map.append('red')
-    for i in shortest_path:
-        print(G.nodes[i]['label'], end=' ')
+    final_stretch = [G.nodes[i]['label'] for i in shortest_path]
+    print (final_stretch)
+
+#    for i in shortest_path:
+#        print(G.nodes[i]['label'], end=' ')
 else:
     print('NIEMOŻLIWE')
 
