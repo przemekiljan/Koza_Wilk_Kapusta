@@ -21,9 +21,10 @@ import time
 f = cbg.load_file()
 
 # Defining capacity of a boat, default capacity is set at 2
-if sys.argv[2]:
-    cap = int(sys.argv[2])
-else:
+try:
+    if sys.argv[2]:
+        cap = int(sys.argv[2])
+except:
     cap = 2
 
 pre_order = sys.stdin.read().strip('\n')

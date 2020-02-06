@@ -34,10 +34,12 @@ import cabbage as cbg
 f = cbg.load_file()
 
 # Defining capacity of a boat, default capacity is set at 2.
-if sys.argv[2]:
-    cap = int(sys.argv[2])
-else:
+try:
+    if sys.argv[2]:
+        cap = int(sys.argv[2])
+except:
     cap = 2
+
 pre_shore = cbg.load_dicts(f)
 w_shore = cbg.Shore(cbg.earmarking(pre_shore))
 e_shore = w_shore.create_empty_shore()
