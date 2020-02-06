@@ -124,6 +124,27 @@ def load_dicts(fn):
             start[k] = 1
     return start
 
+# Thanks to function below it is possible for script to distinguish between similar animals
+def earmarking(dictionary):
+    start = copy.deepcopy(dictionary)
+    for k, v in dictionary.items():
+        if v > 1:
+            for i in range(v):
+                start[k + '_' + str(i)] = 1
+            del start[k]
+            for key, value in habits.items():
+                if k in value:
+                    values = copy.deepcopy(habits[key])
+                    habits[key] = values.remove(k)
+                    for i in range(v):
+                        habits[key] = values.append(k + '_' + str(i))
+                    habits.update({key: values})
+            if k in habits:
+                for i in range(v):
+                    habits[k + '_' + str(i)] = habits[k]
+                del habits[k]
+    return start
+
 
 # Checking history allows us to spot possible loops. Function forbids repeating same shore patterns with same
 # passengers on board.
@@ -152,3 +173,9 @@ def return_leafs(graph):
 def find_shortest(graph, list_of_ends):
     all_paths = [nx.bidirectional_shortest_path(graph, 0, i) for i in list_of_ends]
     return min(all_paths, key=len)
+
+# At the end, the stdin should return names without earmarkings
+def remove_earmarking(node_list):
+    clean = [[j[:-2] for j in i] if len(i) > 1 else [(i[0][:-2])] if '_' in str(i) else i for i in node_list]
+    return clean
+

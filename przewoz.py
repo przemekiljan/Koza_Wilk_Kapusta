@@ -38,8 +38,8 @@ if sys.argv[2]:
     cap = int(sys.argv[2])
 else:
     cap = 2
-
-w_shore = cbg.Shore(cbg.load_dicts(f))
+pre_shore = cbg.load_dicts(f)
+w_shore = cbg.Shore(cbg.earmarking(pre_shore))
 e_shore = w_shore.create_empty_shore()
 G = nx.Graph()
 # Stating our goal for number of animals on east shore.
@@ -161,12 +161,12 @@ if ['KONIEC'] in list_of_labels:
         else:
             color_map.append('red')
     final_stretch = [G.nodes[i]['label'] for i in shortest_path]
-    print (final_stretch)
+    print(cbg.remove_earmarking(final_stretch))
 
 #    for i in shortest_path:
 #        print(G.nodes[i]['label'], end=' ')
 else:
-    print('NIEMOŻLIWE')
+    print('['+'\'NIEMOŻLIWE\''+']')
 
 list_of_node_sizes = [node_sizes[k] for k in node_sizes]
 

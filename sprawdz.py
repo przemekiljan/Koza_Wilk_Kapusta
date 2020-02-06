@@ -30,7 +30,7 @@ pre_order = sys.stdin.read().strip('\n')
 order = eval(pre_order)
 
 # Constructing sequence from input
-if order == 'NIEMOŻLIWE':
+if order == ['NIEMOŻLIWE']:
     print('Transport jest niemożliwy, podaj sekwencję lub zmień parametry poprzeniego skryptu.')
     sys.exit()
 elif type(order) == list:
@@ -57,12 +57,14 @@ max_char = max([len(k) for k in w_shore.inv])
 number_of_lines = len(w_shore.create_shore_list())
 
 del pre_order
+
+
 # Defining function that prints message containing shore states in each step
 def statement(transfer):
     w_list = w_shore.create_shore_list()
     e_list = e_shore.create_shore_list()
     print(15 * '🚢 ')
-    print((max_char-2)*' '+'Zachód ↤ ' + '✵' + ' ↦ Wschód\n')
+    print((max_char - 2) * ' ' + 'Zachód ↤ ' + '✵' + ' ↦ Wschód\n')
     for line in range(number_of_lines):
         w_item = cbg.safe_list_get(w_list, line, max_char * " ")
         e_item = cbg.safe_list_get(e_list, line, max_char * " ")
@@ -72,15 +74,15 @@ def statement(transfer):
 
 
 # Printing out starting inventory on both shores
-print((max_char)*' '+'Stan początkowy')
+print((max_char) * ' ' + 'Stan początkowy')
 statement(None)
 time.sleep(5)
 # Creating a loop that'll iterate over next steps in given sequence
 for course_number in range(len(sequence)):
     transfer = sequence[course_number]
     if not transfer:  # Stating what will happen if the boat doesn't take any passengers on board
-        print(15 * '🚢 '+'\n')
-        print(2*'🚢 ' + "Łódka przepłynęła bez załadunku  " + 2*'🚢 '+'\n')
+        print(15 * '🚢 ' + '\n')
+        print(2 * '🚢 ' + "Łódka przepłynęła bez załadunku  " + 2 * '🚢 ' + '\n')
         time.sleep(5)
     else:
         if (course_number % 2) == 0:  # Index numbers in list containing sequence ensure that boat goes back and forth
@@ -111,4 +113,3 @@ statement(None)
 print('Udało się przewieźć wszystkie zwierzęta na drugą stronę!\n')
 if 'WILK' in e_shore.create_shore_list():
     print('Tylko po co rolnikowi wilk...\n')
-
