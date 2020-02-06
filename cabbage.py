@@ -14,11 +14,13 @@ def powerset(s):
     for i in range(1 << x):
         yield [ss for mask, ss in zip(masks, s) if i & mask]
 
-def safe_list_get (l, idx, default):
-  try:
-    return str(l[idx])
-  except IndexError:
-    return default
+
+def safe_list_get(l, idx, default):
+    try:
+        return str(l[idx])
+    except IndexError:
+        return default
+
 
 # Defining class for each transfer with two attributes: name - passengers and direction.
 class Transfer:
@@ -124,6 +126,7 @@ def load_dicts(fn):
             start[k] = 1
     return start
 
+
 # Thanks to function below it is possible for script to distinguish between similar animals
 def earmarking(dictionary):
     start = copy.deepcopy(dictionary)
@@ -174,8 +177,8 @@ def find_shortest(graph, list_of_ends):
     all_paths = [nx.bidirectional_shortest_path(graph, 0, i) for i in list_of_ends]
     return min(all_paths, key=len)
 
+
 # At the end, the stdin should return names without earmarkings
 def remove_earmarking(node_list):
     clean = [[j[:-2] for j in i] if len(i) > 1 else [(i[0][:-2])] if '_' in str(i) else i for i in node_list]
     return clean
-

@@ -177,4 +177,4 @@ labels = dict((n, d['label']) for n, d in G.nodes(data=True))
 plt.figure(figsize=(20, 10))
 nx.draw(G, labels=labels, font_size=5, node_color=color_map, node_size=list_of_node_sizes, with_labels=True,
         node_shape='D', legend='label')
-plt.savefig("graph1.png")
+plt.savefig("graph.png")
